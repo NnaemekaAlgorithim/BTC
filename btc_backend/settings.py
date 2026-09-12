@@ -11,6 +11,7 @@ from btc_backend.configurations import (
     EMAIL_HOST_USER,
     EMAIL_PORT,
     EMAIL_USE_TLS,
+    FRONTEND_URL,
     SECRET_KEY,
 )
 
@@ -77,6 +78,7 @@ REST_FRAMEWORK = {
 }
 
 BTC_REFERRAL_REWARD = BTC_REFERRAL_REWARD
+FRONTEND_URL = FRONTEND_URL
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},

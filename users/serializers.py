@@ -63,10 +63,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_referral_url(self, obj):
-        request = self.context.get("request")
-        if request:
-            return request.build_absolute_uri(f"/api/users/register/?ref={obj.referral_code}")
-        return f"/api/users/register/?ref={obj.referral_code}"
+        from django.conf import settings as django_settings
+        frontend = getattr(django_settings, "FRONTEND_URL", "http://localhost:3000").rstrip("/")
+        return f"{frontend}/register?ref={obj.referral_code}"
 
 
 class LoginSerializer(serializers.Serializer):
