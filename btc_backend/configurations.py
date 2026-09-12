@@ -10,6 +10,8 @@ BTC_REFERRAL_REWARD = config('BTC_REFERRAL_REWARD', default='0.00000000001')
 
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:3000')
 
+CORS_ALLOWED_ORIGINS_STR = config('CORS_ALLOWED_ORIGINS', default='http://localhost:3000')
+
 EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = config('EMAIL_HOST', default='')
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
