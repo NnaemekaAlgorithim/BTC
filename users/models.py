@@ -28,6 +28,8 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=100, default="")
+    last_name = models.CharField(max_length=100, default="")
     phone_number = PhoneNumberField(unique=True)
     agreed_to_terms = models.BooleanField(default=False)
 
@@ -49,7 +51,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["phone_number"]
+    REQUIRED_FIELDS = ["first_name", "last_name", "phone_number"]
+
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}".strip()
+
+    def __str__(self):
+        return f"{self.full_name} <{self.email}>"
 
     def save(self, *args, **kwargs):
         if not self.referral_code:
@@ -64,6 +73,3 @@ class User(AbstractBaseUser, PermissionsMixin):
             code = "".join(secrets.choice(alphabet) for _ in range(8))
             if not User.objects.filter(referral_code=code).exists():
                 return code
-
-    def __str__(self):
-        return self.email

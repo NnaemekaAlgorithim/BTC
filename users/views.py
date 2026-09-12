@@ -57,6 +57,6 @@ class LeaderboardView(APIView):
         top_users = (
             User.objects.filter(btc_balance__gt=0)
             .order_by("-btc_balance")[:20]
-            .values("email", "btc_balance", "referral_code")
+            .values("first_name", "last_name", "email", "btc_balance", "referral_code")
         )
         return Response(list(top_users))

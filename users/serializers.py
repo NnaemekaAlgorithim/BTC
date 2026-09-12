@@ -13,7 +13,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["email", "phone_number", "password", "agreed_to_terms", "referral_code"]
+        fields = ["first_name", "last_name", "email", "phone_number", "password", "agreed_to_terms", "referral_code"]
 
     def validate_agreed_to_terms(self, value):
         if not value:
@@ -53,6 +53,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             "id",
+            "first_name",
+            "last_name",
             "email",
             "phone_number",
             "btc_balance",
