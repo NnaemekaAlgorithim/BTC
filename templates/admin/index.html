@@ -1,0 +1,219 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+{% with s=btc_stats %}
+
+<style>
+  .btc-dashboard { margin-bottom: 30px; }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--darkened-bg, #f8f8f8);
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 6px;
+    padding: 18px 16px 14px;
+  }
+  .stat-card .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--body-quiet-color, #888);
+    margin-bottom: 6px;
+  }
+  .stat-card .value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--body-fg, #333);
+    line-height: 1;
+  }
+  .stat-card .sub {
+    font-size: 11px;
+    color: var(--body-quiet-color, #999);
+    margin-top: 4px;
+  }
+  .stat-card.highlight { border-color: #417690; }
+  .stat-card.highlight .value { color: #417690; }
+
+  .dash-section { margin-bottom: 28px; }
+  .dash-section h3 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--body-quiet-color, #999);
+    border-bottom: 1px solid var(--border-color, #ddd);
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+  }
+  .dash-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .dash-table th {
+    text-align: left;
+    padding: 6px 10px;
+    background: var(--darkened-bg, #f5f5f5);
+    border-bottom: 1px solid var(--border-color, #ddd);
+    color: var(--body-quiet-color, #666);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+  .dash-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--hairline-color, #eee);
+    vertical-align: middle;
+  }
+  .dash-table tr:last-child td { border-bottom: none; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #e8f4e8;
+    color: #2d6a2d;
+  }
+  .tables-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 900px) { .tables-row { grid-template-columns: 1fr; } }
+</style>
+
+<div class="btc-dashboard">
+
+  <!-- Headline cards -->
+  <div class="stat-grid">
+    <div class="stat-card highlight">
+      <div class="label">Total Users</div>
+      <div class="value">{{ s.total_users }}</div>
+      <div class="sub">+{{ s.new_users_today }} today &middot; +{{ s.new_users_this_week }} this week</div>
+    </div>
+    <div class="stat-card highlight">
+      <div class="label">Total BTC Distributed</div>
+      <div class="value" style="font-size:16px">{{ s.total_btc_distributed }}</div>
+      <div class="sub">across all balances</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Total Referrals</div>
+      <div class="value">{{ s.total_referrals }}</div>
+      <div class="sub">successful registrations</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Task Completions</div>
+      <div class="value">{{ s.total_task_completions }}</div>
+      <div class="sub">+{{ s.tasks_today }} today</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">BTC from Tasks</div>
+      <div class="value" style="font-size:16px">{{ s.btc_from_tasks }}</div>
+      <div class="sub">earned via task rewards</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Active Tasks</div>
+      <div class="value">{{ s.active_tasks }}</div>
+      <div class="sub">currently live</div>
+    </div>
+  </div>
+
+  <!-- Top tables -->
+  <div class="tables-row">
+    <div class="dash-section">
+      <h3>Top Referrers</h3>
+      {% if s.top_referrers %}
+      <table class="dash-table">
+        <thead><tr><th>Email</th><th>Referrals</th><th>Balance</th></tr></thead>
+        <tbody>
+          {% for u in s.top_referrers %}
+          <tr>
+            <td>{{ u.email }}</td>
+            <td><span class="badge">{{ u.ref_count }}</span></td>
+            <td>{{ u.btc_balance }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}<p style="color:#999;font-size:13px">No referrals yet.</p>{% endif %}
+    </div>
+
+    <div class="dash-section">
+      <h3>Top Earners</h3>
+      {% if s.top_earners %}
+      <table class="dash-table">
+        <thead><tr><th>Email</th><th>Balance</th><th>Code</th></tr></thead>
+        <tbody>
+          {% for u in s.top_earners %}
+          <tr>
+            <td>{{ u.email }}</td>
+            <td><span class="badge">{{ u.btc_balance }}</span></td>
+            <td><code>{{ u.referral_code }}</code></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}<p style="color:#999;font-size:13px">No balances yet.</p>{% endif %}
+    </div>
+  </div>
+
+  <!-- Recent registrations -->
+  <div class="dash-section">
+    <h3>Recent Registrations</h3>
+    {% if s.recent_users %}
+    <table class="dash-table">
+      <thead><tr><th>Email</th><th>Phone</th><th>Balance</th><th>Joined</th></tr></thead>
+      <tbody>
+        {% for u in s.recent_users %}
+        <tr>
+          <td>{{ u.email }}</td>
+          <td>{{ u.phone_number }}</td>
+          <td>{{ u.btc_balance }}</td>
+          <td>{{ u.date_joined|date:"M d, Y H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p style="color:#999;font-size:13px">No users yet.</p>{% endif %}
+  </div>
+
+</div>
+{% endwith %}
+
+<!-- Standard model list -->
+{% if app_list %}
+  {% for app in app_list %}
+  <div class="app-{{ app.app_label }} module{% if app.app_label in app_list|length|stringformat:"s" %} current-app{% endif %}">
+    <table>
+      <caption>
+        <a href="{{ app.app_url }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">{{ app.name }}</a>
+      </caption>
+      {% for model in app.models %}
+      <tr class="model-{{ model.object_name|lower }}{% if model.admin_url %} clickable{% endif %}">
+        {% if model.admin_url %}
+        <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+        {% else %}
+        <th scope="row">{{ model.name }}</th>
+        {% endif %}
+        {% if model.add_url %}
+        <td><a href="{{ model.add_url }}" class="addlink">{% translate 'Add' %}</a></td>
+        {% else %}
+        <td>&nbsp;</td>
+        {% endif %}
+        {% if model.admin_url and show_changelinks %}
+        <td><a href="{{ model.admin_url }}" class="changelink">{% translate 'View' %}</a></td>
+        {% elif model.admin_url %}
+        <td><a href="{{ model.admin_url }}" class="changelink">{% translate 'Change' %}</a></td>
+        {% else %}
+        <td>&nbsp;</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% endfor %}
+{% else %}
+  <p>{% translate "You don't have permission to view or edit anything." %}</p>
+{% endif %}
+{% endblock %}

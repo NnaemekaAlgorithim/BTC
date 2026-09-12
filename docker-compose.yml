@@ -1,0 +1,43 @@
+# BTC docker-compose.
+#
+# This project has no db/redis containers of its own — it connects to the same
+# external Postgres server via DATABASE_URL in .env.
+#
+# It has no nginx of its own: it shares InventoryMaster2's nginx container by
+# joining the "shared_frontend" network. Bring InventoryMaster2's stack up first
+# so that network exists, then bring this one up.
+
+services:
+  migrate:
+    build: .
+    command: sh -c "python manage.py migrate"
+    env_file: .env
+    networks:
+      - shared_frontend
+      - inventorymaster_backend
+    restart: "no"
+
+  web:
+    build: .
+    container_name: btc_web
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - static_files:/app/staticfiles
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - shared_frontend
+      - inventorymaster_backend
+
+volumes:
+  static_files:
+    name: btc_static_files
+
+networks:
+  shared_frontend:
+    external: true
+  inventorymaster_backend:
+    external: true
+    name: inventorymaster2_backend
